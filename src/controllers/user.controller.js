@@ -231,5 +231,48 @@ const addBook = asyncHandler(async (req, res) => {
 
 })
 
+// Borrow Book
+const borrowBook = asyncHandler(async (req, res) => {
 
-export { registerUser, loginUser, logoutUser, addBook }
+    const userId = req.user?._id;
+    const user = await User.findById(userId)
+    if (!user) {
+        throw new apiError(401, "User authentication failed or user not registered")
+
+    }
+
+    const { bookId } = req.params;
+
+    const book = await Book.findOne({ bookId });
+    if (!book) {
+        throw new apiError(404, "Book not found")
+    }
+    if (book.availableCopies <= 0) {
+        throw new apiError(400, "Book not available")
+    }
+
+
+    await Book.findOneAndUpdate(
+        { bookId },
+        {
+            $inc: { availableCopies: -1 },
+            $push: {
+                borrowedBy: { userId, borrowDate: Date.now(), returnDate: null }
+            } // Add user to borrowedBy list
+        }
+    );
+
+    user.borrowedBooks.push({
+        bookId,
+        borrowDate: Date.now(),
+        returnDate: null
+    });
+    await user.save({ validateBeforeSave: false })
+
+    return res.status(200).json(new apiResponse(200, { book }, "Book borrowed sucesssfully"))
+
+
+})
+
+
+export { registerUser, loginUser, logoutUser, addBook, borrowBook }

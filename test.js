@@ -161,4 +161,51 @@ describe('Book Management', () => {
         expect(response.body.message).toBe("Book added sucesssfully");
         expect(response.body.sucess).toBe(true);
     });
+
+    // Test Case to borrow a book
+    it('should borrow a book', async () => {
+        // First, register and login a user
+        await request(app)
+            .post('/api/v1/users/register')
+            .send({
+                email: 'test@example.com',
+                username: 'testuser',
+                fullname: 'Test User',
+                password: 'password123',
+            });
+
+        const loginResponse = await request(app)
+            .post('/api/v1/users/login')
+            .send({
+                email: 'test@example.com',
+                password: 'password123'
+            });
+
+        const { accessToken, refreshToken } = loginResponse.body.data;
+
+        // Add a new book
+        await request(app)
+            .post('/api/v1/users/addBook')
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send({
+                bookId: '1',
+                title: 'Test Book',
+                author: 'Test Author',
+                publicationYear: 2021,
+                totalCopies: 10,
+                availableCopies: 10
+            });
+
+        // Borrow the book
+        const response = await request(app)
+            .post('/api/v1/users/borrowBook/1')
+            .set('Authorization', `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('data');
+        expect(response.body.data).toHaveProperty('book');
+        expect(response.body.data.book).toHaveProperty('bookId', '1');
+        expect(response.body.message).toBe("Book borrowed sucesssfully");
+        expect(response.body.sucess).toBe(true);
+    });
 });
