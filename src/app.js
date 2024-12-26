@@ -21,3 +21,5 @@ app.use(express.static("public"))
 
 // Middleware to parse cookies
 app.use(cookieParser())
+
+export { app }
