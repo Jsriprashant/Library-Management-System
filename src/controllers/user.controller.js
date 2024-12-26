@@ -197,4 +197,39 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 })
 
-export { registerUser, loginUser, logoutUser }
+
+// Controllers for Library Management System
+
+// Add book
+const addBook = asyncHandler(async (req, res) => {
+
+    const userId = req.user?._id;
+    const user = await User.findById(userId)
+    if (!user) {
+        throw new apiError(401, "User authentication failed or user not registered")
+
+    }
+
+    const { bookId, title, author, publicationYear, totalCopies, availableCopies } = req.body;
+
+    if (!title || !author || !bookId || !publicationYear || !totalCopies || !availableCopies) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    await Book.create({ bookId, title, author, publicationYear, totalCopies, availableCopies });
+    const createdBook = await Book.findOne({
+        bookId
+    })
+
+    if (!createdBook) {
+        throw new apiError(500, "Error while adding the book")
+    }
+
+
+    return res.status(200).json(new apiResponse(200, { createdBook }, "Book added sucesssfully"))
+
+
+})
+
+
+export { registerUser, loginUser, logoutUser, addBook }
