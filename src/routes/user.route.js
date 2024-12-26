@@ -1,4 +1,4 @@
-import { registerUser, loginUser, logoutUser, addBook, borrowBook, returnBook } from "../controllers/user.controller.js"
+import { registerUser, loginUser, logoutUser, addBook, borrowBook, returnBook, viewAvailableBooks } from "../controllers/user.controller.js"
 import { Router } from "express";
 import { verifyJWT } from "../middleware/auth.middleware.js"
 
@@ -22,6 +22,8 @@ router.route("/borrowBook/:bookId").post(verifyJWT, borrowBook)
 // return book route
 router.route("/returnBook/:bookId").post(verifyJWT, returnBook)
 
+// view available books
+router.route("/viewAvailableBooks").get(viewAvailableBooks)
 
 
 

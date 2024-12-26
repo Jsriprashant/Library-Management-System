@@ -305,4 +305,17 @@ const returnBook = asyncHandler(async (req, res) => {
     return res.status(200).json(new apiResponse(200, { bookId }, "Book returned successfully"));
 });
 
-export { registerUser, loginUser, logoutUser, addBook, borrowBook, returnBook }
+const viewAvailableBooks = asyncHandler(async (req, res) => {
+    const availableBooks = await Book.aggregate([
+        { $match: { availableCopies: { $gt: 0 } } }, // Match books that have available copies
+        { $project: { title: 1, author: 1, availableCopies: 1, _id: 0, publicationYear: 1, bookId: 1 } }
+    ]);
+
+    if (!availableBooks.length) {
+        throw new apiError(404, "No available books found");
+    }
+
+    return res.status(200).json(new apiResponse(200, availableBooks, "Available books fetched successfully"));
+});
+
+export { registerUser, loginUser, logoutUser, addBook, borrowBook, returnBook, viewAvailableBooks }

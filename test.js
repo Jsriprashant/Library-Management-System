@@ -258,4 +258,52 @@ describe('Book Management', () => {
         expect(response.body.message).toBe("Book returned successfully");
         expect(response.body.sucess).toBe(true);
     });
+
+    it('should view available books', async () => {
+        // First, register and login a user
+        await request(app)
+            .post('/api/v1/users/register')
+            .send({
+                email: 'test@example.com',
+                username: 'testuser',
+                fullname: 'Test User',
+                password: 'password123',
+            });
+
+        const loginResponse = await request(app)
+            .post('/api/v1/users/login')
+            .send({
+                email: 'test@example.com',
+                password: 'password123'
+            });
+
+        const { accessToken, refreshToken } = loginResponse.body.data;
+
+        // Add a new book
+        await request(app)
+            .post('/api/v1/users/addBook')
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send({
+                bookId: '1',
+                title: 'Test Book',
+                author: 'Test Author',
+                publicationYear: 2021,
+                totalCopies: 10,
+                availableCopies: 10
+            });
+
+        // View available books
+        const response = await request(app)
+            .get('/api/v1/users/viewAvailableBooks')
+            .set('Authorization', `Bearer ${accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('data');
+        expect(response.body.data.length).toBeGreaterThan(0);
+        expect(response.body.data[0]).toHaveProperty('bookId', '1');
+        expect(response.body.message).toBe("Available books fetched successfully");
+        expect(response.body.sucess).toBe(true);
+    });
+
+
 });
