@@ -12,6 +12,12 @@ beforeAll(async () => {
     await connect(`${process.env.MONGODB_URI}/test_database_library_management`);
 });
 
+afterEach(async () => {
+    // Clear the database after each test
+    await User.deleteMany();
+    await Book.deleteMany();
+});
+
 afterAll(async () => {
     // Close the database connection after all tests
     await connection.close();
@@ -75,6 +81,37 @@ describe('User Registration and Login', () => {
         expect(response.body.data).toHaveProperty('accessToken');
         expect(response.body.data).toHaveProperty('refreshToken');
         expect(response.body.message).toBe("User logged in Sucessfully");
+        expect(response.body.sucess).toBe(true);
+    });
+});
+describe('User Logout', () => {
+    it('should logout a user', async () => {
+        // First, register and login a user
+        const registerResponse = await request(app)
+            .post('/api/v1/users/register')
+            .send({
+                email: 'test@example.com',
+                username: 'testuser',
+                fullname: 'Test User',
+                password: 'password123',
+            });
+
+        const loginResponse = await request(app)
+            .post('/api/v1/users/login')
+            .send({
+                email: 'test@example.com',
+                password: 'password123'
+            });
+
+        const { accessToken, refreshToken } = loginResponse.body.data;
+
+        // Logout the user
+        const response = await request(app)
+            .post('/api/v1/users/logout')
+            .set('Cookie', [`accessToken=${accessToken}`, `refreshToken=${refreshToken}`]);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty('message', 'User logged out successfully');
         expect(response.body.sucess).toBe(true);
     });
 });

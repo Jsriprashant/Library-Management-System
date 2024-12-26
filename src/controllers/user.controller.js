@@ -169,5 +169,32 @@ const loginUser = asyncHandler(
     }
 )
 
+const logoutUser = asyncHandler(async (req, res) => {
 
-export { registerUser, loginUser }
+    // console.log("username", req.user.username)
+    await User.findByIdAndUpdate(
+        req.user._id,
+        // as from the middle ware (verifyJWT we have embeded a user object in the request)
+        {
+
+            $set: { refreshToken: null }
+            // we are using the set operator to the set the refresh token as NULL
+
+        },
+        {
+            new: true
+            // by this, when we send the response then we will get the new and updated value not the old one
+        }
+
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res.status(200).clearCookie("refreshToken", options).clearCookie("accessToken", options).json(new apiResponse(200, {}, "User logged out successfully"))
+
+})
+
+export { registerUser, loginUser, logoutUser }
