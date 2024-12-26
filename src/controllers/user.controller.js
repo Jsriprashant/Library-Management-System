@@ -274,5 +274,35 @@ const borrowBook = asyncHandler(async (req, res) => {
 
 })
 
+// return Book
+const returnBook = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const { bookId } = req.params;
 
-export { registerUser, loginUser, logoutUser, addBook, borrowBook }
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new apiError(401, "User not authenticated");
+    }
+
+    const bookIndex = user.borrowedBooks.findIndex(b => b.bookId.toString() === bookId);
+    if (bookIndex === -1) {
+        throw new apiError(404, "Book not found in your borrowed list");
+    }
+
+    // remove the book from user's borrowed list
+    user.borrowedBooks.splice(bookIndex, 1);
+    await user.save({ validateBeforeSave: false });
+
+    await Book.findOneAndUpdate(
+        { bookId },
+        {
+            // Increase available copies
+            $inc: { availableCopies: 1 },
+            $pull: { borrowedBy: { userId } } // Remove user from the borrowedBy list
+        }
+    );
+
+    return res.status(200).json(new apiResponse(200, { bookId }, "Book returned successfully"));
+});
+
+export { registerUser, loginUser, logoutUser, addBook, borrowBook, returnBook }
