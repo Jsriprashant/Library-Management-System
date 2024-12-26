@@ -22,4 +22,12 @@ app.use(express.static("public"))
 // Middleware to parse cookies
 app.use(cookieParser())
 
+// import routes
+import userRouter from './routes/user.route.js'
+
+// Routes declaration
+app.use("/api/v1/users", userRouter)
+// once the user hits the /api/v1/users, the request will be redirected to userRouter
+// userRouter will have all the routes for the user
+
 export { app }

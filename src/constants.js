@@ -1,1 +1,1 @@
-export const DB_NAME = "Library"
+export const DB_NAME = "LibraryManagementSystem";
