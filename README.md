@@ -35,7 +35,7 @@ Before you begin, ensure you have the following installed:
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/Jsriprashant/Library-Management-System
-    cd Library-Management-System
+   cd Library-Management-System
 
    ```
 
@@ -116,10 +116,10 @@ Before you begin, ensure you have the following installed:
      ```
 
 2. **Borrow Book**  
-   `POST /api/v1/users/borrowBook/:bookId` (Requires authentication)
+   `POST /api/v1/users/borrowBook/:bookId` (Requires authentication, middleware already is created for authentication )
 
 3. **Return Book**  
-   `POST /api/v1/users/returnBook/:bookId` (Requires authentication)
+   `POST /api/v1/users/returnBook/:bookId` (Requires authentication, middleware already is created for authentication)
 
 4. **View Available Books**  
    `GET /api/v1/users/viewAvailableBooks`
@@ -138,7 +138,7 @@ Before you begin, ensure you have the following installed:
 
 3. **Run Tests:**
    ```bash
-   npm test
+   npm run test
    ```
 
 ---
